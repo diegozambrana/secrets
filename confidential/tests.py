@@ -86,3 +86,13 @@ class TestConfidential(APITestCase):
 
         decrypted = decrypt(secret.content, key)
         self.assertEquals(decrypted, data['content'])
+
+    def test_retrieve_secret_information(self):
+        instance = Secret.objects.create(content='lorem')
+        self.assertIsNotNone(instance.id)
+
+        url = reverse('confidential-detail', args=[instance.id])
+        response = self.client.get(url)
+        response_json = response.json()
+        self.assertEquals(response.status_code, 200)
+        self.assertNotIn('content', response_json)
