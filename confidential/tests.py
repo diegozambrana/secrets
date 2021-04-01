@@ -96,3 +96,48 @@ class TestConfidential(APITestCase):
         response_json = response.json()
         self.assertEquals(response.status_code, 200)
         self.assertNotIn('content', response_json)
+
+    def test_reveal_secret_encrypted(self):
+        secret = 'secret content lorem ipsum'
+        key = 'secretkey'
+
+        instance = Secret.objects.create(
+            content=encrypt(secret, key),
+            encrypted=True
+        )
+        self.assertIsNotNone(instance.id)
+
+        url = reverse('confidential-reveal', args=[instance.id])
+        response = self.client.put(url, data={
+            'key': key
+        }, format='json')
+        response_json = response.json()
+        self.assertEquals(response.status_code, 200)
+
+        self.assertIn('content', response_json)
+        self.assertEqual(secret, response_json['content'])
+
+    def test_fail_reveal_secret_encrypted_with_no_secret(self):
+        secret = 'secret content lorem ipsum'
+        key = 'secretkey'
+
+        instance = Secret.objects.create(
+            content=encrypt(secret, key),
+            encrypted=True
+        )
+
+        url = reverse('confidential-reveal', args=[instance.id])
+        response = self.client.put(url)
+        self.assertEquals(response.status_code, 400)
+
+    def test_reveal_secret_non_encrypted(self):
+        secret = 'secret content lorem ipsum'
+        instance = Secret.objects.create(content=secret)
+
+        url = reverse('confidential-reveal', args=[instance.id])
+        response = self.client.put(url, format='json')
+        response_json = response.json()
+        self.assertEquals(response.status_code, 200)
+
+        self.assertIn('content', response_json)
+        self.assertEqual(secret, response_json['content'])
