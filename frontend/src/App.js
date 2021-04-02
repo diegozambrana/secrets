@@ -7,6 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {CreateForm} from './pages/Create';
+import {RevealForm} from './pages/Reveal'
 
 
 function App() {
@@ -21,7 +22,8 @@ function App() {
                 <Row>
                     <Col>
                         <Switch>
-                            <Route exact path='/' component={CreateForm} />
+                            <Route exact path='/' component={CreateForm} exact />
+                            <Route exact path='/:id' component={RevealForm} />
                         </Switch>
                     </Col>
                 </Row>
