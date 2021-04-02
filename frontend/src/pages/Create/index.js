@@ -4,8 +4,8 @@ import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCopy } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
 
 export function CreateForm(props) {
@@ -20,7 +20,7 @@ export function CreateForm(props) {
         setShowAlert(true);
     }
 
-    let formContent = (
+    let formCreate = (
         <Form>
             <Form.Group controlId="content">
                 <Form.Label>Secreto</Form.Label>
@@ -78,5 +78,5 @@ export function CreateForm(props) {
         </>
     )
 
-    return completed ? formMessage : formContent;
+    return completed ? formMessage : formCreate;
 }
