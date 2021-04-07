@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Alert from 'react-bootstrap/Alert'
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -6,33 +6,48 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
+import { post } from '../../api/base';
+import { useForm } from 'react-hook-form';
 
 
 export function CreateForm(props) {
-    const [secret, setSecret] = useState({});
-    const [completed, setCompleted] = useState(false);
+    const [secretId, setSecretId] = useState(null);
     const [showAlert, setShowAlert] = useState(true);
+    const { register, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, touched, submitCount, errors } } = useForm();
 
-    function handleSubmit(event) {
-        event.preventDefault();
-        console.log("clicking: %o", completed);
-        setCompleted(true);
-        setShowAlert(true);
+    function onSubmit(data) {
+        post('/api/confidential', data).then((response) => {
+            console.log("response: %o", response);
+            setSecretId(response.data.id);
+            setShowAlert(true);
+            reset()
+        })
+    }
+
+    function handleClick({ target }) {
+        navigator.clipboard.writeText(getURI())
+    }
+
+    function getURI() {
+        return `${window.location.href}${secretId}`;
     }
 
     let formCreate = (
-        <Form>
+        <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group controlId="content">
                 <Form.Label>Secreto</Form.Label>
-                <Form.Control as="textarea" rows="3" />
+                <Form.Control as="textarea" rows="3" {...register("content", { required: true })} isInvalid={!!errors.content} />
+                <Form.Control.Feedback type="invalid">
+                    El contenido del secreto es requerido.
+                </Form.Control.Feedback>
             </Form.Group>
             <Form.Row>
                 <Form.Group as={Col} controlId="lifetime">
                     <Form.Label>Válido por</Form.Label>
-                    <Form.Control as="select">
+                    <Form.Control as="select" {...register("lifetime", { required: true })}>
                         <option value="1">1 hora</option>
-                        <option value="1">2 horas</option>
-                        <option value="1">3 horas</option>
+                        <option value="2">2 horas</option>
+                        <option value="3">3 horas</option>
                         <option value="24">1 día</option>
                         <option value="48">2 días</option>
                         <option value="720">7 días</option>
@@ -41,10 +56,10 @@ export function CreateForm(props) {
                 </Form.Group>
                 <Form.Group as={Col} controlId="key">
                     <Form.Label>Palabra cláve</Form.Label>
-                    <Form.Control type="password" />
+                    <Form.Control type="password" {...register("key")} />
                 </Form.Group>
             </Form.Row>
-            <Button onClick={handleSubmit} variant="primary" type="submit">Crear</Button>
+            <Button variant="primary" type="submit">Crear</Button>
         </Form>
     )
 
@@ -65,18 +80,21 @@ export function CreateForm(props) {
                         placeholder=""
                         aria-label="Recipient's username"
                         aria-describedby="basic-addon2"
+                        value={getURI()}
                     />
                     <InputGroup.Append>
-                        <Button variant="outline-secondary">
+                        <Button variant="outline-secondary" onClick={handleClick}>
                             <FontAwesomeIcon icon={faCopy} />
                             Copy
                         </Button>
                     </InputGroup.Append>
                 </InputGroup>
             </Form>
-            <Button onClick={() => setCompleted(false)}>Retornar</Button>
+            <Button onClick={() => setSecretId(null)}>Retornar</Button>
         </>
     )
 
-    return completed ? formMessage : formCreate;
+    console.log("secretId: %o", secretId)
+
+    return secretId != null ? formMessage : formCreate;
 }
