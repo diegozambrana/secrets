@@ -20,7 +20,7 @@ export function CreateForm(props) {
             console.log("response: %o", response);
             setSecretId(response.data.id);
             setShowAlert(true);
-            reset()
+            reset();
         })
     }
 
