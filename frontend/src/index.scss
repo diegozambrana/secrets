@@ -1,0 +1,10 @@
+$body-bg: #DAE5DF;
+$body-color: #111;
+
+$theme-colors: (
+  "primary": #00A290,
+  "danger": #ff4136
+);
+
+@import "~bootstrap/scss/bootstrap";
+@import "./App"
