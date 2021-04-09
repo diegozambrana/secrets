@@ -16,7 +16,7 @@ function App() {
         <BrowserRouter>        
             <Container>
                 <Row>
-                    <Col className="text-center">
+                    <Col id="brand" className="text-center">
                         <Link to="/">
                             <img src={logo} className="App-logo" alt="logo" width="150" />
                         </Link>

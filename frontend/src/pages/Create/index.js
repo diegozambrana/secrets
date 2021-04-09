@@ -10,30 +10,21 @@ import { post } from '../../api/base';
 import { useForm } from 'react-hook-form';
 
 
-export function CreateForm(props) {
-    const [secretId, setSecretId] = useState(null);
-    const [showAlert, setShowAlert] = useState(true);
-    const { register, handleSubmit, reset, formState: { isDirty, isValid, isSubmitting, touched, submitCount, errors } } = useForm();
+const styles = {
+    width: "100%"
+}
+
+function FormCreate(props) {
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
     function onSubmit(data) {
-        post('/api/confidential', data).then((response) => {
-            console.log("response: %o", response);
-            setSecretId(response.data.id);
-            setShowAlert(true);
-            reset();
+        props.onSubmit(data).then((response) => {
+            reset()
         })
     }
 
-    function handleClick({ target }) {
-        navigator.clipboard.writeText(getURI())
-    }
-
-    function getURI() {
-        return `${window.location.href}${secretId}`;
-    }
-
-    let formCreate = (
-        <Form onSubmit={handleSubmit(onSubmit)}>
+    return (
+        <Form onSubmit={ handleSubmit(onSubmit) }>
             <Form.Group controlId="content">
                 <Form.Label>Secreto</Form.Label>
                 <Form.Control as="textarea" rows="3" {...register("content", { required: true })} isInvalid={!!errors.content} />
@@ -59,11 +50,29 @@ export function CreateForm(props) {
                     <Form.Control type="password" {...register("key")} />
                 </Form.Group>
             </Form.Row>
-            <Button variant="primary" type="submit">Crear</Button>
+            <Button style={styles} variant="primary" type="submit">Crear</Button>
         </Form>
     )
+}
 
-    let formMessage = (
+function FormMessage(props) {
+    const [showAlert, setShowAlert] = useState(true);
+
+    const handleCopy = ({ target }) => {
+        navigator.clipboard.writeText(getURI())
+    }
+
+    const handleReturn = () => {
+        console.log("++++ handleReturn")
+        setShowAlert(true);
+        props.onReturn();
+    }
+
+    const getURI = () => {
+        return `${window.location.href}${props.secret.id}`;
+    }
+
+    return (
         <>
             {
                 showAlert ?
@@ -83,18 +92,41 @@ export function CreateForm(props) {
                         value={getURI()}
                     />
                     <InputGroup.Append>
-                        <Button variant="outline-secondary" onClick={handleClick}>
+                        <Button variant="outline-secondary" onClick={handleCopy}>
                             <FontAwesomeIcon icon={faCopy} />
                             Copy
                         </Button>
                     </InputGroup.Append>
                 </InputGroup>
             </Form>
-            <Button onClick={() => setSecretId(null)}>Retornar</Button>
+            <Button onClick={handleReturn}>Retornar</Button>
         </>
     )
+}
 
-    console.log("secretId: %o", secretId)
 
-    return secretId != null ? formMessage : formCreate;
+export function CreateForm(props) {
+    const [secret, setSecret] = useState({id: null});
+
+    const reset = () => {
+        setSecret({id: null})
+    }
+
+    function handleCreate(data) {
+        return post('/api/confidential', data).then((response) => {
+            setSecret((prev) => ({...prev, id: response.data.id}));
+        })
+    }
+
+    return (
+        <>
+            <p className="top-buffer font-italic">
+                Crea y comparte textos de forma secreta y con un enlace que se
+                invalida una vez utilizado.
+            </p>
+            {secret.id != null ?
+                <FormMessage secret={secret} onReturn={reset} /> :
+                <FormCreate secret={secret} onSubmit={handleCreate} /> }
+        </>
+    )
 }
