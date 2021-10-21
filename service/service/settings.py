@@ -21,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = '0x!b#(1*cd73w$&azzc6p+essg7v=g80ls#z&xcx*mpemx&@9$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['secrets-api.code.bo', '127.0.0.1', 'localhost']
 
@@ -38,9 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'graphene_django',
+
     'corsheaders',
+    'storages',
     'confidential',
     'rest_framework',
+    
+    'courses',
 ]
 
 MIDDLEWARE = [
@@ -122,6 +127,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+# S3 Conf
+# rfAFBUWS2j2d8vt2XgdXTaYlK0hXXxMvRkC+PiG8
+AWS_ACCESS_KEY_ID = 'AKIA2DCKPCX3TS5J4PFG'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'datalake-codebo'
+
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+BASE_MEDIA_S3 = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
+
 STATIC_URL = '/static/'
 
 LOGGING = {
@@ -152,6 +169,10 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     )
+}
+
+GRAPHENE = {
+    "SCHEMA": "courses.schema.schema"
 }
 
 CORS_ALLOWED_ORIGINS = [
